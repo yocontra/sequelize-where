@@ -1,15 +1,15 @@
 {
   "name": "sequelize-where",
   "version": "0.1.0",
-  "description": "Simple module to map one object to another using a stack of declarative pointers and transforms",
+  "description": "Pure JS implementation of the sequelize query language (where)",
   "main": "dist/index.js",
   "keywords": [
-    "transform",
-    "map",
-    "etl",
+    "sequelize",
+    "where",
+    "query",
     "json",
     "object",
-    "declarative"
+    "mock"
   ],
   "repository": {
     "type": "git",

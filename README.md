@@ -10,34 +10,22 @@ npm install sequelize-where --save
 ## Usage
 
 ```js
-import { transform } from 'sequelize-where'
+import filter from 'sequelize-where'
 
-const transforms = {
-  date: (v) => new Date(v)
-}
+// filter takes a query object and returns a function
+// the filter function returned takes one object argument - the input data
+const fn = filter({
+  $or: [
+    { a: 'c' },
+    { a: 'd' },
+    { b: { $in: [ 'd', 'e', 'f' ] } }
+  ]
+})
 
-const stack = [
-  { to: 'bday', from: 'birth', transforms: [ 'date' ] },
-  { to: 'name', from: 'name.legal' }
-]
-
-const input = {
-  name: {
-    legal: 'Don Adams',
-    preferred: 'Donny'
-  },
-  birth: '11/12/27'
-}
-
-console.log(transform(stack, input, { transforms }))
-/*
-Prints:
-
-{
-  "bday": "2027-11-12T05:00:00.000Z",
-  "name": "Don Adams"
-}
-*/
+console.log(fn({ a: 'c' })) // true
+console.log(fn({ a: 'd' })) // true
+console.log(fn({ a: 'f' })) // false
+console.log(fn({ a: 'f', b: 'e' })) // true
 ```
 
 [downloads-image]: http://img.shields.io/npm/dm/sequelize-where.svg
