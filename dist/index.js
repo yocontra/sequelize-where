@@ -14,6 +14,14 @@ var _isPlainObject = require('is-plain-object');
 
 var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
+var _regexpLike = require('regexp-like');
+
+var _regexpLike2 = _interopRequireDefault(_regexpLike);
+
+var _lodash3 = require('lodash.isequal');
+
+var _lodash4 = _interopRequireDefault(_lodash3);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const operators = {
@@ -25,25 +33,31 @@ const operators = {
   $lt: queryValue => inputValue => inputValue < queryValue,
   $not: queryValue => {
     const fn = createFilter(queryValue);
-    return v => !fn(v);
+    return inputValue => !fn(inputValue);
   },
+  $is: queryValue => createFilter(queryValue),
   $in: queryValue => inputValue => queryValue.indexOf(inputValue) !== -1,
   $notIn: queryValue => inputValue => queryValue.indexOf(inputValue) === -1,
+  $like: queryValue => operators.$regexp((0, _regexpLike2.default)(queryValue)),
+  $notLike: queryValue => inputValue => !operators.$like(queryValue)(inputValue),
+  $iLike: queryValue => operators.$regexp((0, _regexpLike2.default)(queryValue, true)),
+  $notILike: queryValue => inputValue => !operators.$iLike(queryValue)(inputValue),
+  $regexp: queryValue => {
+    const exp = new RegExp(queryValue);
+    return inputValue => exp.test(inputValue);
+  },
+  $notRegexp: queryValue => inputValue => !operators.$regexp(queryValue)(inputValue),
+  $iRegexp: queryValue => {
+    const exp = new RegExp(queryValue, 'i');
+    return inputValue => exp.test(inputValue);
+  },
+  $notIRegexp: queryValue => inputValue => !operators.$iRegexp(queryValue)(inputValue),
+  $between: queryValue => inputValue => inputValue > queryValue[0] && inputValue < queryValue[1],
+  $notBetween: queryValue => inputValue => !operators.$between(queryValue)(inputValue),
+  $overlap: queryValue => inputValue => Array.isArray(inputValue) && inputValue.some(v => queryValue.includes(v)),
+  $contains: queryValue => inputValue => Array.isArray(inputValue) && (0, _lodash4.default)((0, _lodash2.default)(queryValue, inputValue), queryValue),
+  $contained: queryValue => inputValue => Array.isArray(inputValue) && (0, _lodash4.default)((0, _lodash2.default)(queryValue, inputValue), inputValue),
   /*
-  $is: Op.is,
-  $like: Op.like,
-  $notLike: Op.notLike,
-  $iLike: Op.iLike,
-  $notILike: Op.notILike,
-  $regexp: Op.regexp,
-  $notRegexp: Op.notRegexp,
-  $iRegexp: Op.iRegexp,
-  $notIRegexp: Op.notIRegexp,
-  $between: Op.between,
-  $notBetween: Op.notBetween,
-  $overlap: Op.overlap,
-  $contains: Op.contains,
-  $contained: Op.contained,
   $adjacent: Op.adjacent,
   $strictLeft: Op.strictLeft,
   $strictRight: Op.strictRight,
@@ -57,10 +71,7 @@ const operators = {
   $or: queryValue => {
     const fns = queryValue.map(q => createFilter(q));
     return v => fns.some(fn => fn(v));
-  } /*,
-    $any: Op.any,
-    $all: Op.all,
-    $col: Op.col*/
+  }
 };
 
 const opKeys = Object.keys(operators);
@@ -83,9 +94,8 @@ const createFilter = (where = {}) => {
       return prev;
     }
 
-    // its a comparison
+    // its a comparison, nothing fancy
     if (!hasOps(val)) {
-      // its a comparison
       prev.push(o => {
         const v = _dotProp2.default.get(o, k);
         return operators.$eq(val)(v);

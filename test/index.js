@@ -71,4 +71,39 @@ describe('transform', () => {
     should(fn({ a: 'c' })).equal(false)
     should(fn({ a: 'd' })).equal(true)
   })
+  it('should work on $regexp', () => {
+    const where = { a: { $regexp: '.' } }
+    const fn = createFilter(where)
+    should(fn({ a: 'b' })).equal(true)
+    should(fn({ a: 'c' })).equal(true)
+    should(fn({ a: 'd' })).equal(true)
+  })
+  it('should work on $notRegexp', () => {
+    const where = { a: { $notRegexp: '.' } }
+    const fn = createFilter(where)
+    should(fn({ a: 'b' })).equal(false)
+    should(fn({ a: 'c' })).equal(false)
+    should(fn({ a: 'd' })).equal(false)
+  })
+  it('should work on $like', () => {
+    const where = { a: { $like: '123%' } }
+    const fn = createFilter(where)
+    should(fn({ a: '12345' })).equal(true)
+    should(fn({ a: '5678' })).equal(false)
+    should(fn({ a: '2345' })).equal(false)
+  })
+  it('should work on $notLike', () => {
+    const where = { a: { $notLike: '123%' } }
+    const fn = createFilter(where)
+    should(fn({ a: '12345' })).equal(false)
+    should(fn({ a: '5678' })).equal(true)
+    should(fn({ a: '2345' })).equal(true)
+  })
+  it('should work on $iLike', () => {
+    const where = { a: { $iLike: 'abc%' } }
+    const fn = createFilter(where)
+    should(fn({ a: 'abcdef' })).equal(true)
+    should(fn({ a: 'ABCDEF' })).equal(true)
+    should(fn({ a: '2345' })).equal(false)
+  })
 })

@@ -1,6 +1,6 @@
 {
   "name": "sequelize-where",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pure JS implementation of the sequelize query language (where)",
   "main": "dist/index.js",
   "keywords": [
@@ -173,6 +173,8 @@
   "dependencies": {
     "dot-prop": "^4.2.0",
     "is-plain-object": "^2.0.4",
-    "lodash.intersection": "^4.4.0"
+    "lodash.intersection": "^4.4.0",
+    "lodash.isequal": "^4.5.0",
+    "regexp-like": "^1.1.1"
   }
 }

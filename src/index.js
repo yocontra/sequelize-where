@@ -1,6 +1,8 @@
 import dot from 'dot-prop'
 import intersection from 'lodash.intersection'
 import isObject from 'is-plain-object'
+import likeToRegex from 'regexp-like'
+import isEqual from 'lodash.isequal'
 
 const operators ={
   $eq: (queryValue) => (inputValue) => queryValue === inputValue,
@@ -11,25 +13,31 @@ const operators ={
   $lt: (queryValue) => (inputValue) => inputValue < queryValue,
   $not: (queryValue) => {
     const fn = createFilter(queryValue)
-    return (v) => !fn(v)
+    return (inputValue) => !fn(inputValue)
   },
+  $is: (queryValue) => createFilter(queryValue),
   $in: (queryValue) => (inputValue) => queryValue.indexOf(inputValue) !== -1,
   $notIn: (queryValue) => (inputValue) => queryValue.indexOf(inputValue) === -1,
+  $like: (queryValue) => operators.$regexp(likeToRegex(queryValue)),
+  $notLike: (queryValue) => (inputValue) => !operators.$like(queryValue)(inputValue),
+  $iLike: (queryValue) => operators.$regexp(likeToRegex(queryValue, true)),
+  $notILike: (queryValue) => (inputValue) => !operators.$iLike(queryValue)(inputValue),
+  $regexp: (queryValue) => {
+    const exp = new RegExp(queryValue)
+    return (inputValue) => exp.test(inputValue)
+  },
+  $notRegexp: (queryValue) => (inputValue) => !operators.$regexp(queryValue)(inputValue),
+  $iRegexp: (queryValue) => {
+    const exp = new RegExp(queryValue, 'i')
+    return (inputValue) => exp.test(inputValue)
+  },
+  $notIRegexp: (queryValue) => (inputValue) => !operators.$iRegexp(queryValue)(inputValue),
+  $between: (queryValue) => (inputValue) => inputValue > queryValue[0] && inputValue < queryValue[1],
+  $notBetween: (queryValue) => (inputValue) => !operators.$between(queryValue)(inputValue),
+  $overlap: (queryValue) => (inputValue) => Array.isArray(inputValue) && inputValue.some((v) => queryValue.includes(v)),
+  $contains: (queryValue) => (inputValue) => Array.isArray(inputValue) && isEqual(intersection(queryValue, inputValue), queryValue),
+  $contained: (queryValue) => (inputValue) => Array.isArray(inputValue) && isEqual(intersection(queryValue, inputValue), inputValue),
   /*
-  $is: Op.is,
-  $like: Op.like,
-  $notLike: Op.notLike,
-  $iLike: Op.iLike,
-  $notILike: Op.notILike,
-  $regexp: Op.regexp,
-  $notRegexp: Op.notRegexp,
-  $iRegexp: Op.iRegexp,
-  $notIRegexp: Op.notIRegexp,
-  $between: Op.between,
-  $notBetween: Op.notBetween,
-  $overlap: Op.overlap,
-  $contains: Op.contains,
-  $contained: Op.contained,
   $adjacent: Op.adjacent,
   $strictLeft: Op.strictLeft,
   $strictRight: Op.strictRight,
@@ -43,10 +51,7 @@ const operators ={
   $or: (queryValue) => {
     const fns = queryValue.map((q) => createFilter(q))
     return (v) => fns.some((fn) => fn(v))
-  }/*,
-  $any: Op.any,
-  $all: Op.all,
-  $col: Op.col*/
+  }
 }
 
 const opKeys = Object.keys(operators)
@@ -69,9 +74,8 @@ const createFilter = (where={}) => {
       return prev
     }
 
-    // its a comparison
+    // its a comparison, nothing fancy
     if (!hasOps(val)) {
-      // its a comparison
       prev.push((o) => {
         const v = dot.get(o, k)
         return operators.$eq(val)(v)
