@@ -99,11 +99,32 @@ describe('transform', () => {
     should(fn({ a: '5678' })).equal(true)
     should(fn({ a: '2345' })).equal(true)
   })
-  it('should work on $iLike', () => {
-    const where = { a: { $iLike: 'abc%' } }
+  it('should work on $and with one item', () => {
+    const where = { $and: [ { name: { $eq: 'abcd' } } ] }
     const fn = createFilter(where)
-    should(fn({ a: 'abcdef' })).equal(true)
-    should(fn({ a: 'ABCDEF' })).equal(true)
-    should(fn({ a: '2345' })).equal(false)
+    should(fn({ name: 'abcd' })).equal(true)
+    should(fn({ name: 'ABCDEF' })).equal(false)
+    should(fn({ name: '2345' })).equal(false)
+  })
+  it('should not error on null $and item', () => {
+    const where = { $and: [ null ] }
+    const fn = createFilter(where)
+    should(fn({ name: 'abcd' })).equal(true)
+    should(fn({ name: 'ABCDEF' })).equal(true)
+    should(fn({ name: '2345' })).equal(true)
+  })
+  it('should not error on null query', () => {
+    const where = null
+    const fn = createFilter(where)
+    should(fn({ name: 'abcd' })).equal(true)
+    should(fn({ name: 'ABCDEF' })).equal(true)
+    should(fn({ name: '2345' })).equal(true)
+  })
+  it('should not error on null $and', () => {
+    const where = { $and: null }
+    const fn = createFilter(where)
+    should(fn({ name: 'abcd' })).equal(false)
+    should(fn({ name: 'ABCDEF' })).equal(false)
+    should(fn({ name: '2345' })).equal(false)
   })
 })
