@@ -92,6 +92,14 @@ describe('transform', () => {
     should(fn({ a: '5678' })).equal(false)
     should(fn({ a: '2345' })).equal(false)
   })
+  it('should work on $like with case sensitivity', () => {
+    const where = { a: { $like: '%a%' } }
+    const fn = createFilter(where)
+    should(fn({ a: 'bAc' })).equal(false)
+    should(fn({ a: 'bac' })).equal(true)
+    should(fn({ a: 'abc' })).equal(true)
+    should(fn({ a: 'cba' })).equal(true)
+  })
   it('should work on $notLike', () => {
     const where = { a: { $notLike: '123%' } }
     const fn = createFilter(where)
