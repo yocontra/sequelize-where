@@ -10,9 +10,9 @@ var _lodash = require('lodash.intersection');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _isPlainObject = require('is-plain-object');
+var _isPlainObj = require('is-plain-obj');
 
-var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+var _isPlainObj2 = _interopRequireDefault(_isPlainObj);
 
 var _regexpLike = require('regexp-like');
 
@@ -86,7 +86,7 @@ const operators = {
 };
 
 const opKeys = Object.keys(operators);
-const hasOps = o => (0, _isPlainObject2.default)(o) && (0, _lodash2.default)(Object.keys(o), opKeys).length !== 0;
+const hasOps = o => (0, _isPlainObj2.default)(o) && (0, _lodash2.default)(Object.keys(o), opKeys).length !== 0;
 
 const createFilter = (where = {}) => {
   if (!where) return truthy;

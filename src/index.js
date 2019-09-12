@@ -1,6 +1,6 @@
 import dot from 'dot-prop'
 import intersection from 'lodash.intersection'
-import isObject from 'is-plain-object'
+import isObject from 'is-plain-obj'
 import likeToRegex from 'regexp-like'
 import isEqual from 'lodash.isequal'
 
