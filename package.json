@@ -171,7 +171,7 @@
     }
   },
   "dependencies": {
-    "dot-prop": "^4.2.0",
+    "dot-prop": "^5.2.0",
     "is-plain-obj": "^2.0.0",
     "lodash.intersection": "^4.4.0",
     "lodash.isequal": "^4.5.0",
