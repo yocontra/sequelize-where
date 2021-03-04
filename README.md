@@ -1,5 +1,6 @@
 # sequelize-where [![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
+Simple query language for filtering objects. Pure JS implementation of the `where` part of queries from Sequelize.
 
 ## Install
 

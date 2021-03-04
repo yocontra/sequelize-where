@@ -68,7 +68,7 @@ const operators = {
 const opKeys = Object.keys(operators)
 const hasOps = (o) => isObject(o) && intersection(Object.keys(o), opKeys).length !== 0
 
-const createFilter = (where={}) => {
+const createFilter = (where = {}) => {
   if (!where) return truthy
   if (typeof where === 'function') return where // nothing to do
   if (Array.isArray(where)) return operators.$and(where)
